@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกมแยกประเภทคอร์ดดนตรี 🎸</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; color: white; overflow: hidden; }
+        
+        h1 { margin-top: 20px; font-size: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .score-board { font-size: 1.2rem; margin: 10px 0; padding: 5px 20px; background: rgba(0, 0, 0, 0.3); border-radius: 20px; }
+
+        /* พื้นที่เกม */
+        .game-area {
+            position: relative;
+            width: 90%;
+            max-width: 400px;
+            height: 60vh;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px 15px 0 0;
+            overflow: hidden;
+            border-bottom: 5px solid #ff4757;
+        }
+
+        /* คอร์ดที่ตกลงมา */
+        .chord-block {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: #f1c40f;
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            left: 50%;
+            transform: translateX(-50%);
+            transition: top 0.1s linear;
+        }
+
+        /* โซนปุ่มตอบคำถามด้านล่าง */
+        .answer-zone {
+            width: 90%;
+            max-width: 400px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 0 0 15px 15px;
+        }
+
+        .btn-answer {
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .btn-answer:active { transform: scale(0.95); }
+        .btn-major { background-color: #3498db; }
+        .btn-minor { background-color: #2ecc71; }
+        .btn-aug { background-color: #e67e22; }
+        .btn-dim { background-color: #9b59b6; }
+
+        /* ข้อความแจ้งเตือน */
+        .feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: bold; opacity: 0; pointer-events: none; transition: opacity 0.3s; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        .feedback.show { opacity: 1; }
+        .correct { color: #2ecc71; }
+        .wrong { color: #ff4757; }
+    </style>
+</head>
+<body>
+
+    <h1>เกมแยกประเภทคอร์ด 🎸</h1>
+    <div class="score-board">คะแนน: <span id="score">0</span> | พลาด: <span id="misses">0</span>/3</div>
+
+    <div class="game-area" id="gameArea">
+        <div id="feedbackText" class="feedback"></div>
+    </div>
+
+    <div class="answer-zone">
+        <button class="btn-answer btn-major" onclick="checkAnswer('Major')">Major</button>
+        <button class="btn-answer btn-minor" onclick="checkAnswer('Minor')">Minor</button>
+        <button class="btn-answer btn-aug" onclick="checkAnswer('Augmented')">Augmented</button>
+        <button class="btn-answer btn-dim" onclick="checkAnswer('Diminished')">Diminished</button>
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const scoreDisplay = document.getElementById('score');
+        const missesDisplay = document.getElementById('misses');
+        const feedbackText = document.getElementById('feedbackText');
+
+        // ข้อมูลคอร์ดดนตรี (เอาไว้ให้บอสเพิ่มรูปภาพ <img> ใส่ในนี้ได้ในอนาคต)
+        const chordData = [
+            { text: 'C', type: 'Major' }, { text: 'G', type: 'Major' },
+            { text: 'Am', type: 'Minor' }, { text: 'Dm', type: 'Minor' },
+            { text: 'Caug', type: 'Augmented' }, { text: 'Faug', type: 'Augmented' },
+            { text: 'Bdim', type: 'Diminished' }, { text: 'Edim', type: 'Diminished' }
+        ];
+
+        let activeChords = [];
+        let score = 0;
+        let misses = 0;
+        let gameSpeed = 2; // ความเร็วในการตก
+        let spawnRate = 2000; // ความถี่ในการปล่อยคอร์ด (มิลลิวินาที)
+        let gameLoopId, spawnId;
+
+        function spawnChord() {
+            const randomChord = chordData[Math.floor(Math.random() * chordData.length)];
+            const chordEl = document.createElement('div');
+            chordEl.classList.add('chord-block');
+            chordEl.textContent = randomChord.text; // แสดงชื่อคอร์ด (แทนภาพ)
+            
+            // สุ่มตำแหน่งแกน X นิดหน่อยให้อยู่ตรงกลางๆ
+            const randomX = Math.floor(Math.random() * 60) + 20; 
+            chordEl.style.left = randomX + '%';
+            chordEl.style.top = '0px';
+
+            gameArea.appendChild(chordEl);
+            
+            activeChords.push({
+                element: chordEl,
+                type: randomChord.type,
+                y: 0
+            });
+        }
+
+        function updateGame() {
+            const areaHeight = gameArea.clientHeight;
+
+            for (let i = 0; i < activeChords.length; i++) {
+                let chord = activeChords[i];
+                chord.y += gameSpeed; // เลื่อนลง
+                chord.element.style.top = chord.y + 'px';
+
+                // ถ้าคอร์ดตกลงไปแตะขอบล่าง (ไม่ได้ตอบ)
+                if (chord.y > areaHeight - 80) {
+                    chord.element.remove();
+                    activeChords.splice(i, 1);
+                    i--;
+                    handleMiss();
+                }
+            }
+            gameLoopId = requestAnimationFrame(updateGame);
+        }
+
+        function checkAnswer(selectedType) {
+            if (activeChords.length === 0) return;
+
+            // เช็คคอร์ดที่อยู่ต่ำสุด (index 0 เพราะเกิดก่อน)
+            let lowestChord = activeChords[0];
+
+            if (lowestChord.type === selectedType) {
+                // ตอบถูก
+                score += 10;
+                scoreDisplay.textContent = score;
+                showFeedback('โดนใจ! 🎯', 'correct');
+                
+                // เพิ่มความเร็วเกมเรื่อยๆ เมื่อได้คะแนน
+                if (score % 50 === 0) gameSpeed += 0.5; 
+            } else {
+                // ตอบผิด
+                handleMiss();
+                showFeedback('ผิดจ้า! ❌', 'wrong');
+            }
+
+            // ลบคอร์ดที่ถูกเช็คแล้วออก
+            lowestChord.element.remove();
+            activeChords.shift();
+        }
+
+        function handleMiss() {
+            misses++;
+            missesDisplay.textContent = misses;
+            if (misses >= 3) {
+                gameOver();
+            }
+        }
+
+        function showFeedback(msg, className) {
+            feedbackText.textContent = msg;
+            feedbackText.className = 'feedback show ' + className;
+            setTimeout(() => { feedbackText.classList.remove('show'); }, 500);
+        }
+
+        function gameOver() {
+            cancelAnimationFrame(gameLoopId);
+            clearInterval(spawnId);
+            alert('จบเกม! บอสทำคะแนนได้: ' + score + '\nรีเฟรชหน้าเว็บเพื่อเริ่มใหม่ครับ');
+        }
+
+        function startGame() {
+            spawnChord();
+            spawnId = setInterval(spawnChord, spawnRate);
+            updateGame();
+        }
+
+        // เริ่มเกมทันที
+        startGame();
+    </script>
+</body>
+</html>
