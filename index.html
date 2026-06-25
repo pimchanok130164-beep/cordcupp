@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chord Classification - Slowmotion Edition 🎸🔥</title>
+    <title>Chord Classification - Mobile Fixed 🎸🔥</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
@@ -11,13 +11,15 @@
             background-color: #020617; 
             color: white; 
             min-height: 100vh; 
+            min-height: 100dvh; /* 📱 ปรับโครงสร้างความสูงยืดหยุ่นตามแถบของ iPhone 13 */
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
-            overflow: hidden; 
-            touch-action: none;
+            overflow-x: hidden;
+            overflow-y: auto; /* อนุญาตให้สกรอลล์หน้าจอได้หากหน้าจอสั้น */
             position: relative;
+            padding: 15px 0;
         }
 
         /* 🔥 เอฟเฟกต์พื้นหลังไฟลุก (Dynamic Fire Overlay) */
@@ -50,47 +52,47 @@
             z-index: 10;
         }
 
-        /* ---------------- ✨ สไตล์หน้าแรกคู่มือคอร์ดด่วน ✨ ---------------- */
+        /* ---------------- ✨ สไตล์หน้าแรกหดกระชับเพื่อหน้าจอมือถือ ✨ ---------------- */
         #startScreen {
             text-align: center;
             background: #1e293b;
-            padding: 25px 20px;
+            padding: 20px 15px; /* กระชับพื้นที่ Padding */
             border-radius: 24px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             border: 2px solid #475569;
-            width: 90%;
-            max-width: 390px;
+            width: 92%;
+            max-width: 380px;
             animation: fadeIn 0.5s ease-out;
         }
 
         #startScreen h1 {
-            font-size: 2.2rem;
+            font-size: 2rem; /* ปรับขนาดฟอนต์หน้าแรกให้พอดีสายตาอุปกรณ์พกพา */
             color: #f97316;
             margin-bottom: 5px;
             text-shadow: 0 4px 15px rgba(249, 115, 22, 0.5);
             line-height: 1.2;
         }
 
-        .instruction { font-size: 0.95rem; margin-bottom: 15px; color: #94a3b8; text-align: center; line-height: 1.4; }
+        .instruction { font-size: 0.9rem; margin-bottom: 12px; color: #94a3b8; text-align: center; line-height: 1.4; }
 
         /* ส่วนปุ่มเลือกระดับความยาก */
         .difficulty-zone {
-            margin: 15px 0;
+            margin: 10px 0;
         }
         .diff-title {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #cbd5e1;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: bold;
         }
         .diff-buttons {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             justify-content: center;
         }
         .btn-diff {
-            padding: 8px 14px;
-            font-size: 0.9rem;
+            padding: 6px 12px;
+            font-size: 0.85rem;
             font-weight: bold;
             color: #94a3b8;
             background: #0f172a;
@@ -98,6 +100,7 @@
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent; /* ลบแถบสีฟ้าเวลาแตะบน iOS */
         }
         .btn-diff:hover { color: white; border-color: #475569; }
         .btn-diff.active.diff-easy { background: #10b981; color: white; border-color: #34d399; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
@@ -107,7 +110,7 @@
         /* กล่องคู่มือความรู้เรื่องคอร์ด */
         .cheat-sheet {
             background: #0f172a;
-            padding: 12px 15px;
+            padding: 10px 12px;
             border-radius: 16px;
             margin: 5px 0 15px 0;
             text-align: left;
@@ -116,19 +119,20 @@
 
         .cheat-sheet h3 {
             color: #facc15;
-            font-size: 1.1rem;
-            margin-bottom: 12px;
+            font-size: 1rem;
+            margin-bottom: 8px;
             text-align: center;
         }
 
         .chord-info { 
-            margin-bottom: 10px; 
-            font-size: 0.85rem; 
+            margin-bottom: 8px; 
+            font-size: 0.8rem; 
             cursor: pointer;
-            padding: 6px 8px;
+            padding: 6px;
             border-radius: 8px;
             transition: all 0.2s ease;
             border: 1px solid transparent;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .chord-info:hover {
@@ -140,12 +144,12 @@
         .chord-info:last-child { margin-bottom: 0; }
         .chord-title { font-weight: bold; color: #38bdf8; }
         .chord-formula { color: #f87171; font-family: monospace; font-weight: bold; }
-        .chord-desc { color: #94a3b8; display: block; padding-left: 5px; margin-top: 2px;}
-        .click-hint { font-size: 0.75rem; color: #64748b; text-align: center; display: block; margin-top: 5px; font-style: italic;}
+        .chord-desc { color: #94a3b8; display: block; padding-left: 5px; margin-top: 1px;}
+        .click-hint { font-size: 0.7rem; color: #64748b; text-align: center; display: block; margin-top: 4px; font-style: italic;}
 
         .btn-start {
-            padding: 14px 45px;
-            font-size: 1.3rem;
+            padding: 12px 40px;
+            font-size: 1.2rem;
             font-weight: bold;
             color: white;
             background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
@@ -154,10 +158,11 @@
             cursor: pointer;
             box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
             transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
         }
-        .btn-start:hover { transform: scale(1.05) translateY(-2px); box-shadow: 0 8px 30px rgba(249, 115, 22, 0.6); }
+        .btn-start:hover { transform: scale(1.03) translateY(-1px); box-shadow: 0 8px 30px rgba(249, 115, 22, 0.6); }
 
-        /* ---------------- 🔮 สไตล์หน้าต่างป๊อปอัปเพิ่มเติม (Modal UI) ---------------- */
+        /* ---------------- 🔮 หน้าต่างป๊อปอัปเพิ่มเติม (Modal UI) ---------------- */
         .modal-overlay {
             display: none;
             position: absolute;
@@ -174,46 +179,44 @@
             background: #1e293b;
             border: 2px solid #38bdf8;
             border-radius: 20px;
-            padding: 25px;
-            width: 85%;
-            max-width: 350px;
+            padding: 20px;
+            width: 88%;
+            max-width: 340px;
             text-align: left;
             position: relative;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
-        .modal-content h2 { font-size: 1.5rem; color: #facc15; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 8px;}
-        .modal-section { margin-bottom: 12px; font-size: 0.95rem; line-height: 1.5; }
+        .modal-content h2 { font-size: 1.3rem; color: #facc15; margin-bottom: 12px; border-bottom: 1px solid #334155; padding-bottom: 6px;}
+        .modal-section { margin-bottom: 10px; font-size: 0.9rem; line-height: 1.4; }
         .modal-section b { color: #38bdf8; }
         
         .modal-examples {
             background: #0f172a;
-            padding: 10px;
+            padding: 8px;
             border-radius: 8px;
             font-family: monospace;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #34d399;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         .close-btn {
             position: absolute;
-            top: 12px; right: 18px;
-            font-size: 1.5rem;
+            top: 10px; right: 16px;
+            font-size: 1.4rem;
             cursor: pointer;
             color: #94a3b8;
-            transition: color 0.2s;
         }
-        .close-btn:hover { color: #ef4444; }
         /* ----------------------------------------------------------------- */
 
         /* หน้าจอเล่นเกมหลัก */
-        #gameWrapper h1 { margin-top: 10px; font-size: 2rem; color: #f97316; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        #gameWrapper h1 { margin-top: 5px; font-size: 1.8rem; color: #f97316; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
         
         .score-board { 
-            font-size: 1.05rem; 
-            margin: 10px 0; 
-            padding: 8px 15px; 
+            font-size: 0.95rem; 
+            margin: 8px 0; 
+            padding: 6px 12px; 
             background: rgba(30, 41, 59, 0.8); 
             border-radius: 20px; 
             border: 1px solid #334155; 
@@ -224,29 +227,31 @@
 
         .game-area {
             position: relative;
-            width: 90%;
+            width: 92%;
             max-width: 400px;
-            height: 52vh;
+            height: 50vh;
+            height: 50dvh; /* ใช้ขนาดยืดหยุ่นป้องกันขอบตัดบน Safari */
             background: rgba(30, 41, 59, 0.4);
             border: 2px solid #475569;
             border-radius: 15px 15px 0 0;
             overflow: hidden;
             border-bottom: 5px solid #ef4444;
+            touch-action: none; /* 📱 ล็อกระบบ Gesture การเลื่อนหน้าจอไว้เฉพาะในกล่องเกมส์นี้เท่านั้น */
         }
 
         .chord-block {
             position: absolute;
             width: 115px;
-            height: 70px;
+            height: 65px;
             background: #facc15;
             color: #1e293b;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
             left: 50%;
             transform: translateX(-50%);
             transition: top 0.016s linear;
@@ -256,12 +261,12 @@
         }
 
         .answer-zone {
-            width: 90%;
+            width: 92%;
             max-width: 400px;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            padding: 12px;
+            gap: 8px;
+            padding: 10px;
             background: rgba(15, 23, 42, 0.8);
             border-radius: 0 0 15px 15px;
             border: 2px solid #475569;
@@ -269,8 +274,8 @@
         }
 
         .btn-answer {
-            padding: 14px;
-            font-size: 1.1rem;
+            padding: 12px;
+            font-size: 1rem;
             font-weight: bold;
             color: white;
             border: none;
@@ -278,6 +283,7 @@
             cursor: pointer;
             transition: transform 0.1s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            -webkit-tap-highlight-color: transparent;
         }
         .btn-answer:active { transform: scale(0.95); }
         .btn-major { background-color: #3498db; border-bottom: 4px solid #2980b9; }
@@ -285,7 +291,7 @@
         .btn-aug { background-color: #e67e22; border-bottom: 4px solid #d35400; }
         .btn-dim { background-color: #9b59b6; border-bottom: 4px solid #8e44ad; }
 
-        .feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.8rem; font-weight: bold; opacity: 0; pointer-events: none; transition: opacity 0.2s; text-shadow: 2px 2px 10px rgba(0,0,0,0.6); z-index: 30; }
+        .feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.5rem; font-weight: bold; opacity: 0; pointer-events: none; transition: opacity 0.2s; text-shadow: 2px 2px 10px rgba(0,0,0,0.6); z-index: 30; }
         .feedback.show { opacity: 1; }
         .correct { color: #2ecc71; }
         .wrong { color: #ff4757; }
@@ -294,7 +300,7 @@
         #gameOverScreen {
             text-align: center;
             background: #1e293b;
-            padding: 30px 20px;
+            padding: 25px 20px;
             border-radius: 24px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.7);
             border: 2px solid #ef4444;
@@ -303,14 +309,13 @@
             animation: fadeIn 0.5s ease-out;
         }
 
-        #gameOverScreen h2 { font-size: 2.2rem; color: #ef4444; margin-bottom: 20px; text-shadow: 0 0 10px rgba(239,68,68,0.5); }
-        .result-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; background: #0f172a; border-radius: 12px; overflow: hidden; }
-        .result-table td { padding: 12px 15px; border-bottom: 1px solid #1e293b; font-size: 1.1rem; }
+        #gameOverScreen h2 { font-size: 2rem; color: #ef4444; margin-bottom: 15px; text-shadow: 0 0 10px rgba(239,68,68,0.5); }
+        .result-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #0f172a; border-radius: 12px; overflow: hidden; }
+        .result-table td { padding: 10px 12px; border-bottom: 1px solid #1e293b; font-size: 1rem; }
         .result-table td:first-child { text-align: left; color: #94a3b8; }
         .result-table td:last-child { text-align: right; font-weight: bold; color: #facc15; }
-        #rankText { font-size: 1.2rem; color: #34d399 !important; text-shadow: 0 0 8px rgba(52,211,153,0.4); }
-        .btn-restart { padding: 12px 35px; font-size: 1.1rem; font-weight: bold; color: white; background: #475569; border: none; border-radius: 25px; cursor: pointer; transition: all 0.2s; }
-        .btn-restart:hover { background: #64748b; }
+        #rankText { font-size: 1.1rem; color: #34d399 !important; text-shadow: 0 0 8px rgba(52,211,153,0.4); }
+        .btn-restart { padding: 12px 30px; font-size: 1rem; font-weight: bold; color: white; background: #475569; border: none; border-radius: 25px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
@@ -502,6 +507,7 @@
         }
 
         function startGameFromScreen() {
+            // เล่นเสียงสตาร์ทผ่านการ Interaction บนมือถือได้สมบูรณ์
             playSound(startSound);
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'none';
@@ -512,7 +518,6 @@
             chordsCleared = 0;
             activeChords = [];
             
-            // 🎯 ปรับจูนระดับสโลว์โมชันในโหมด Easy ใหม่ตามคำสั่งบอสครับ
             if (selectedDifficulty === 'Easy') {
                 gameSpeed = 0.4;   // สโลว์โมชันสุดใจ ค่อยๆ ลอยละล่องลงมาอย่างช้าๆ 🐌
                 spawnRate = 4500;  // ห่างข้อละ 4.5 วินาที ให้เวลาคิดวิเคราะห์เต็มที่ ไม่ทับถมหน้าจอ
@@ -542,7 +547,8 @@
             chordEl.classList.add('chord-block');
             chordEl.textContent = randomChord.text; 
             
-            const randomX = Math.floor(Math.random() * 55) + 15; 
+            // ปรับระยะสุ่มแกน X ให้ปลอดภัยบนหน้าจอ iPhone คอร์ดจะไม่ล้นหลุดขอบจอซ้ายขวาแน่นอนครับ
+            const randomX = Math.floor(Math.random() * 45) + 18; 
             chordEl.style.left = randomX + '%';
             chordEl.style.top = '0px';
 
@@ -564,7 +570,7 @@
                 chord.y += gameSpeed; 
                 chord.element.style.top = chord.y + 'px';
 
-                if (chord.y > areaHeight - 70) {
+                if (chord.y > areaHeight - 65) {
                     chord.element.remove();
                     activeChords.splice(i, 1);
                     i--;
@@ -586,10 +592,9 @@
                 showFeedback('สุดยอด! 🎯', 'correct');
                 playSound(correctSound);
                 
-                // 📈 ลดรอบการเร่งความเร็วของโหมด Easy ลง เพื่อให้ความเร็วคงที่สม่ำเสมอครับบอส
                 if (chordsCleared % 4 === 0) {
                     if (selectedDifficulty === 'Easy') {
-                        gameSpeed += 0.05; // เร่งขึ้นแบบจิ๋วๆ มิลลิเมตรต่อวินาที แทบไม่รู้สึก
+                        gameSpeed += 0.05; 
                         clearInterval(spawnId);
                         spawnRate = Math.max(3500, spawnRate - 50);
                     } else if (selectedDifficulty === 'Medium') {
