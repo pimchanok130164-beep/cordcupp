@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chord Classification - Hellfire Edition 🎸🔥</title>
+    <title>Chord Classification - Slowmotion Edition 🎸🔥</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
@@ -73,12 +73,43 @@
 
         .instruction { font-size: 0.95rem; margin-bottom: 15px; color: #94a3b8; text-align: center; line-height: 1.4; }
 
+        /* ส่วนปุ่มเลือกระดับความยาก */
+        .difficulty-zone {
+            margin: 15px 0;
+        }
+        .diff-title {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .diff-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .btn-diff {
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #94a3b8;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-diff:hover { color: white; border-color: #475569; }
+        .btn-diff.active.diff-easy { background: #10b981; color: white; border-color: #34d399; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+        .btn-diff.active.diff-medium { background: #f59e0b; color: white; border-color: #fbbf24; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+        .btn-diff.active.diff-hard { background: #ef4444; color: white; border-color: #f87171; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+
         /* กล่องคู่มือความรู้เรื่องคอร์ด */
         .cheat-sheet {
             background: #0f172a;
             padding: 12px 15px;
             border-radius: 16px;
-            margin: 10px 0 20px 0;
+            margin: 5px 0 15px 0;
             text-align: left;
             border: 1px solid #334155;
         }
@@ -90,12 +121,11 @@
             text-align: center;
         }
 
-        /* 💡 ปรับปรุงคอร์ดให้สามารถกดคลิกได้ (Clickable) */
         .chord-info { 
             margin-bottom: 10px; 
             font-size: 0.85rem; 
             cursor: pointer;
-            padding: 8px;
+            padding: 6px 8px;
             border-radius: 8px;
             transition: all 0.2s ease;
             border: 1px solid transparent;
@@ -179,7 +209,18 @@
 
         /* หน้าจอเล่นเกมหลัก */
         #gameWrapper h1 { margin-top: 10px; font-size: 2rem; color: #f97316; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .score-board { font-size: 1.2rem; margin: 10px 0; padding: 6px 20px; background: rgba(30, 41, 59, 0.8); border-radius: 20px; border: 1px solid #334155; font-weight: bold; }
+        
+        .score-board { 
+            font-size: 1.05rem; 
+            margin: 10px 0; 
+            padding: 8px 15px; 
+            background: rgba(30, 41, 59, 0.8); 
+            border-radius: 20px; 
+            border: 1px solid #334155; 
+            font-weight: bold;
+            max-width: 95%;
+            text-align: center;
+        }
 
         .game-area {
             position: relative;
@@ -195,11 +236,11 @@
 
         .chord-block {
             position: absolute;
-            width: 75px;
-            height: 75px;
+            width: 115px;
+            height: 70px;
             background: #facc15;
             color: #1e293b;
-            font-size: 1.4rem;
+            font-size: 1.15rem;
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -210,6 +251,8 @@
             transform: translateX(-50%);
             transition: top 0.016s linear;
             border: 2px solid white;
+            white-space: nowrap;
+            padding: 0 5px;
         }
 
         .answer-zone {
@@ -279,31 +322,40 @@
 
     <div id="startScreen" class="screen">
         <h1>CHORD<br>HELLFIRE 🔥</h1>
-        <p class="instruction">แยกประเภทคอร์ดดนตรีสากลที่กำลังร่วงหล่นลงมาให้ถูกต้อง!</p>
+        <p class="instruction">วิเคราะห์ "ชุดตัวโน้ต" ที่กำลังร่วงหล่นลงมา แล้วจัดประเภทคอร์ดให้ถูกต้อง!</p>
         
+        <div class="difficulty-zone">
+            <p class="diff-title">🎯 เลือกระดับความยาก:</p>
+            <div class="diff-buttons">
+                <button type="button" class="btn-diff diff-easy" onclick="setDifficulty('Easy')">ง่าย 🟢</button>
+                <button type="button" class="btn-diff diff-medium active" onclick="setDifficulty('Medium')">ปานกลาง 🟡</button>
+                <button type="button" class="btn-diff diff-hard" onclick="setDifficulty('Hard')">ยาก 🔴</button>
+            </div>
+        </div>
+
         <div class="cheat-sheet">
             <h3>📖 คู่มือโครงสร้างคอร์ดพื้นฐาน</h3>
             
             <div class="chord-info" onclick="openModal('Major')">
-                <span class="chord-title">🎵 Major (เมเจอร์):</span> <span class="chord-formula">Root + 4 + 3</span>
+                <span class="chord-title">🎵 Major (เมเจอร์):</span> <span class="chord-formula">Root + 3 + 5</span>
                 <span class="chord-desc">เสียงสว่าง สดใส (คลิกเพื่อดูเพิ่ม) 🔍</span>
             </div>
             
             <div class="chord-info" onclick="openModal('Minor')">
-                <span class="chord-title">🎵 Minor (ไมเนอร์):</span> <span class="chord-formula">Root + 3 + 4</span>
+                <span class="chord-title">🎵 Minor (ไมเนอร์):</span> <span class="chord-formula">Root + b3 + 5</span>
                 <span class="chord-desc">เสียงหม่น เศร้า (คลิกเพื่อดูเพิ่ม) 🔍</span>
             </div>
             
             <div class="chord-info" onclick="openModal('Augmented')">
-                <span class="chord-title">🎵 Augmented (ออกเมนเต็ด):</span> <span class="chord-formula">Root + 4 + 4</span>
-                <span class="chord-desc">เสียงขยาย แปลกใหม่ (คลิกเพื่อดูเพิ่ม) 🔍</span>
+                <span class="chord-title">🎵 Augmented (ออกเมนเต็ด):</span> <span class="chord-formula">Root + 3 + #5</span>
+                <span class="chord-desc">เสียงเคว้งคว้าง แปลกใหม่ (คลิกเพื่อดูเพิ่ม) 🔍</span>
             </div>
             
             <div class="chord-info" onclick="openModal('Diminished')">
-                <span class="chord-title">🎵 Diminished (ดิมินิช):</span> <span class="chord-formula">Root + 3 + 3</span>
-                <span class="chord-desc">เสียงหดแคบ ลุ้นระทึก (คลิกเพื่อดูเพิ่ม) 🔍</span>
+                <span class="chord-title">🎵 Diminished (ดิมินิช):</span> <span class="chord-formula">Root + b3 + b5</span>
+                <span class="chord-desc">เสียงอึดอัด ลุ้นระทึก (คลิกเพื่อดูเพิ่ม) 🔍</span>
             </div>
-            <span class="click-hint">*บอสสามารถคลิกที่แต่ละคอร์ดเพื่อทบทวนทฤษฎีเชิงลึกได้ครับ</span>
+            <span class="click-hint">*สามารถคลิกที่แต่ละคอร์ดเพื่อทบทวนทฤษฎีเชิงลึกได้</span>
         </div>
 
         <button class="btn-start" onclick="startGameFromScreen()">เริ่มเกมส์ 🚀</button>
@@ -313,7 +365,7 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <span class="close-btn" onclick="closeModal(null)">&times;</span>
             <h2 id="modalTitle">ชื่อคอร์ด</h2>
-            <div class="modal-section"><b>โครงสร้างขั้นคู่:</b> <span id="modalIntervals">-</span></div>
+            <div class="modal-section"><b>โครงสร้างคอร์ด:</b> <span id="modalIntervals">-</span></div>
             <div class="modal-section"><b>อารมณ์/ความรู้สึก:</b> <span id="modalFeeling">-</span></div>
             <div class="modal-section">
                 <b>ตัวอย่างโครงสร้างโน้ตในเกม:</b>
@@ -324,7 +376,10 @@
 
     <div id="gameWrapper" class="screen" style="display: none;">
         <h1>CHORD RUN 🔥</h1>
-        <div class="score-board">คะแนน: <span id="score">0</span> | พลาด: <span id="misses">0</span>/3</div>
+        
+        <div class="score-board">
+            คะแนน: <span id="score">0</span> | พลาด: <span id="misses">0</span> / 3
+        </div>
 
         <div class="game-area" id="gameArea">
             <div id="feedbackText" class="feedback"></div>
@@ -350,7 +405,7 @@
                 <td><span id="resCleared">0</span> คอร์ด</td>
             </tr>
             <tr>
-                <td>ระดับทักษะโสตประสาท</td>
+                <td>ระดับทักษะ</td>
                 <td><span id="rankText">กำลังวิเคราะห์...</span></td>
             </tr>
         </table>
@@ -370,52 +425,48 @@
             audio.play().catch(e => console.log("Sound blocked"));
         }
 
-        // --- 📖คลังข้อมูลเชิงลึกสำหรับระบบป๊อปอัปคู่มือคอร์ด ---
+        // --- 📖 คลังข้อมูลป๊อปอัปคู่มือคอร์ด ---
         const chordDetailsData = {
             Major: {
                 title: "Major Chord (คอร์ดเมเจอร์)",
-                intervals: "Root + Major 3rd (4 ครึ่งเสียง) + Perfect 5th (7 ครึ่งเสียง)",
-                feeling: "ให้ความรู้สึกสว่าง สดใส มีพลัง มั่นคง และมีความสุข มักใช้เป็นคอร์ดหลักในการดำเนินทำนองส่วนใหญ่",
+                intervals: "คือ การนำโน้ตตัวที่ 1 3 5 ของบันไดเสียงเมเจอร์มาเรียงต่อกัน",
+                feeling: "ให้ความรู้สึกสว่าง สดใส มีพลัง มั่นคง และมีความสุข",
                 examples: "C  = C - E - G<br>G  = G - B - D<br>F  = F - A - C"
             },
             Minor: {
                 title: "Minor Chord (คอร์ดไมเนอร์)",
-                intervals: "Root + Minor 3rd (3 ครึ่งเสียง) + Perfect 5th (7 ครึ่งเสียง)",
+                intervals: "คือ การนำโน้ตตัวที่ 1 3 5 ของบันไดเสียงเมเจอร์มาเรียงต่อกัน แล้วลดโน้ตตัวที่ 3 ลงครึ่งเสียง (b3)",
                 feeling: "ให้ความรู้สึกหม่นหมอง เศร้า ลึกลับ นุ่มนวล นำไปใช้สร้างอารมณ์ดราม่าหรือความรู้สึกที่ลึกซึ้ง",
                 examples: "Am = A - C - E<br>Dm = D - F - A<br>Em = E - G - B"
             },
             Augmented: {
                 title: "Augmented Chord (คอร์ดออกเมนเต็ด)",
-                intervals: "Root + Major 3rd (4 ครึ่งเสียง) + Augmented 5th (8 ครึ่งเสียง)",
-                feeling: "ให้ความรู้สึกฝันเฟื่อง เคว้งคว้าง ลอยๆ ตึงเครียดเนื่องจากโน้ตตัวที่ 5 ถูกดันสูงขึ้น มักใช้ส่งต่อไปคอร์ดอื่น",
+                intervals: "คือ การนำโน้ตตัวที่ 1 3 5 ของบันไดเสียงเมเจอร์มาเรียงต่อกัน แล้วยกโน้ตตัวที่ 5 ขึ้นครึ่งเสียง (#5)",
+                feeling: "ให้ความรู้สึกฝันเฟื่อง เคว้งคว้าง ลอยๆ ตึงเครียดเนื่องจากโน้ตตัวที่ 5 ถูกดันสูงขึ้น",
                 examples: "Caug = C - E - G#<br>Faug = F - A - C#<br>Gaug = G - B - D#"
             },
             Diminished: {
                 title: "Diminished Chord (คอร์ดดิมินิช)",
-                intervals: "Root + Minor 3rd (3 ครึ่งเสียง) + Diminished 5th (6 ครึ่งเสียง)",
-                feeling: "ให้ความรู้สึกระทึกขวัญ น่ากลัว ลึกลับ กดดันอย่างรุนแรง มักพบในดนตรีประกอบฉากตื่นเต้นหรือภาพยนตร์สยองขวัญ",
+                intervals: "คือ การนำโน้ตตัวที่ 1 3 5 ของบันไดเสียงเมเจอร์มาเรียงต่อกัน แล้วลดโน้ตตัวที่ 3 และ 5 ลงครึ่งเสียง (b3,b5)",
+                feeling: "ให้ความรู้สึกระทึกขวัญ มีโทนเสียงที่เป็นเอกลักษณ์ ฟังดูมืดมน ไม่กลมกลืน และน่าขนลุก",
                 examples: "Bdim  = B - D - F<br>Edim  = E - G - Bb<br>G#dim = G# - B - D"
             }
         };
 
-        // ฟังก์ชันเปิดป๊อปอัปคู่มือ
         function openModal(chordType) {
             const data = chordDetailsData[chordType];
             document.getElementById('modalTitle').textContent = data.title;
             document.getElementById('modalIntervals').textContent = data.intervals;
             document.getElementById('modalFeeling').textContent = data.feeling;
             document.getElementById('modalExamples').innerHTML = data.examples;
-            
             document.getElementById('chordModal').style.display = 'flex';
-            playSound(popSound); // ใส่เสียงป๊อปสั้นๆ ตอนกดเปิดข้อมูลเพิ่ม
+            playSound(popSound); 
         }
 
-        // ฟังก์ชันปิดป๊อปอัปคู่มือ
         function closeModal(event) {
             document.getElementById('chordModal').style.display = 'none';
         }
 
-        // --- ระบบโครงสร้างเกมตกหล่นเดิม ---
         const gameArea = document.getElementById('gameArea');
         const scoreDisplay = document.getElementById('score');
         const missesDisplay = document.getElementById('misses');
@@ -423,10 +474,10 @@
         const fireOverlay = document.getElementById('fireOverlay');
 
         const chordData = [
-            { text: 'C', type: 'Major' }, { text: 'G', type: 'Major' }, { text: 'F', type: 'Major' },
-            { text: 'Am', type: 'Minor' }, { text: 'Dm', type: 'Minor' }, { text: 'Em', type: 'Minor' },
-            { text: 'Caug', type: 'Augmented' }, { text: 'Faug', type: 'Augmented' }, { text: 'Gaug', type: 'Augmented' },
-            { text: 'Bdim', type: 'Diminished' }, { text: 'Edim', type: 'Diminished' }, { text: 'G#dim', type: 'Diminished' }
+            { text: 'C - E - G', type: 'Major' }, { text: 'G - B - D', type: 'Major' }, { text: 'F - A - C', type: 'Major' },
+            { text: 'A - C - E', type: 'Minor' }, { text: 'D - F - A', type: 'Minor' }, { text: 'E - G - B', type: 'Minor' },
+            { text: 'C - E - G#', type: 'Augmented' }, { text: 'F - A - C#', type: 'Augmented' }, { text: 'G - B - D#', type: 'Augmented' },
+            { text: 'B - D - F', type: 'Diminished' }, { text: 'E - G - Bb', type: 'Diminished' }, { text: 'G# - B - D', type: 'Diminished' }
         ];
 
         let activeChords = [];
@@ -436,6 +487,19 @@
         let spawnRate = 2200; 
         let gameLoopId, spawnId;
         let chordsCleared = 0;
+        
+        let selectedDifficulty = 'Medium';
+
+        function setDifficulty(level) {
+            selectedDifficulty = level;
+            document.querySelectorAll('.btn-diff').forEach(btn => btn.classList.remove('active'));
+            
+            if(level === 'Easy') document.querySelector('.diff-easy').classList.add('active');
+            if(level === 'Medium') document.querySelector('.diff-medium').classList.add('active');
+            if(level === 'Hard') document.querySelector('.diff-hard').classList.add('active');
+            
+            playSound(popSound);
+        }
 
         function startGameFromScreen() {
             playSound(startSound);
@@ -446,15 +510,25 @@
             score = 0;
             misses = 0;
             chordsCleared = 0;
-            gameSpeed = 1.8;
-            spawnRate = 2200;
             activeChords = [];
+            
+            // 🎯 ปรับจูนระดับสโลว์โมชันในโหมด Easy ใหม่ตามคำสั่งบอสครับ
+            if (selectedDifficulty === 'Easy') {
+                gameSpeed = 0.4;   // สโลว์โมชันสุดใจ ค่อยๆ ลอยละล่องลงมาอย่างช้าๆ 🐌
+                spawnRate = 4500;  // ห่างข้อละ 4.5 วินาที ให้เวลาคิดวิเคราะห์เต็มที่ ไม่ทับถมหน้าจอ
+            } else if (selectedDifficulty === 'Medium') {
+                gameSpeed = 1.8;
+                spawnRate = 2200;
+            } else if (selectedDifficulty === 'Hard') {
+                gameSpeed = 2.8;   
+                spawnRate = 1400;  
+            }
             
             const oldBlocks = document.querySelectorAll('.chord-block');
             oldBlocks.forEach(b => b.remove());
 
             scoreDisplay.textContent = score;
-            missesDisplay.textContent = misses + "/3";
+            missesDisplay.textContent = misses; 
             fireOverlay.style.opacity = 0;
 
             spawnChord();
@@ -466,9 +540,9 @@
             const randomChord = chordData[Math.floor(Math.random() * chordData.length)];
             const chordEl = document.createElement('div');
             chordEl.classList.add('chord-block');
-            chordEl.textContent = randomChord.text;
+            chordEl.textContent = randomChord.text; 
             
-            const randomX = Math.floor(Math.random() * 65) + 15; 
+            const randomX = Math.floor(Math.random() * 55) + 15; 
             chordEl.style.left = randomX + '%';
             chordEl.style.top = '0px';
 
@@ -490,7 +564,7 @@
                 chord.y += gameSpeed; 
                 chord.element.style.top = chord.y + 'px';
 
-                if (chord.y > areaHeight - 75) {
+                if (chord.y > areaHeight - 70) {
                     chord.element.remove();
                     activeChords.splice(i, 1);
                     i--;
@@ -512,10 +586,21 @@
                 showFeedback('สุดยอด! 🎯', 'correct');
                 playSound(correctSound);
                 
+                // 📈 ลดรอบการเร่งความเร็วของโหมด Easy ลง เพื่อให้ความเร็วคงที่สม่ำเสมอครับบอส
                 if (chordsCleared % 4 === 0) {
-                    gameSpeed += 0.4;
-                    clearInterval(spawnId);
-                    spawnRate = Math.max(1000, spawnRate - 150);
+                    if (selectedDifficulty === 'Easy') {
+                        gameSpeed += 0.05; // เร่งขึ้นแบบจิ๋วๆ มิลลิเมตรต่อวินาที แทบไม่รู้สึก
+                        clearInterval(spawnId);
+                        spawnRate = Math.max(3500, spawnRate - 50);
+                    } else if (selectedDifficulty === 'Medium') {
+                        gameSpeed += 0.4;
+                        clearInterval(spawnId);
+                        spawnRate = Math.max(1000, spawnRate - 150);
+                    } else if (selectedDifficulty === 'Hard') {
+                        gameSpeed += 0.6;
+                        clearInterval(spawnId);
+                        spawnRate = Math.max(650, spawnRate - 200);
+                    }
                     spawnId = setInterval(spawnChord, spawnRate);
                 }
             } else {
@@ -529,7 +614,7 @@
 
         function handleMiss() {
             misses++;
-            missesDisplay.textContent = misses + "/3";
+            missesDisplay.textContent = misses;
             playSound(errorSound);
 
             fireOverlay.style.opacity = (misses * 0.25);
@@ -558,10 +643,10 @@
                 document.getElementById('resCleared').textContent = chordsCleared;
 
                 let rankText = "";
-                if (score <= 20) rankText = "หูตึงระดับเริ่มต้น 🥚";
-                else if (score <= 50) rankText = "นักเรียนดนตรีฝึกฟัง 🎺";
-                else if (score <= 90) rankText = "มือโปรโสตประสาทไว 🎷";
-                else rankText = "Chord Master หูเทพจุติระดับปรมาจารย์ 👑🔥";
+                if (score <= 20) rankText = "กลับไปทบทวนใหม่น้า 🥚";
+                else if (score <= 50) rankText = "พยายามขึ้นอีกนิดน้า 🎺";
+                else if (score <= 100) rankText = "สุดยอดเลยอีกนิดเดียว 🎷";
+                else rankText = "Chord Master เก่งมากอ้วน 👑🔥";
 
                 document.getElementById('rankText').textContent = rankText;
             }, 400);
